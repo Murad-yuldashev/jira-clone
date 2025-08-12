@@ -8,7 +8,7 @@
 
       <div class="flex items-center space-x-2">
         <SharedColorMode />
-        <NuxtLink>
+        <NuxtLink to="/auth">
           <UButton color="blue">Get it free</UButton>
         </NuxtLink>
         <NuxtLink>

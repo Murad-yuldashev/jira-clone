@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from '#ui/types'
+import {ACCOUNT} from "~/libs/appwrite";
+import {useAuthStore} from "~/store/auth.store";
 
 interface FormState {
   email: string | undefined;
@@ -9,6 +11,12 @@ interface Props {
   toggleLogin: () => void;
 }
 defineProps<Props>()
+
+const authStore = useAuthStore();
+const router = useRouter();
+const toast = useToast();
+const isLoading = ref<boolean>(false);
+const error = ref<string | null>('');
 
 const state = reactive<FormState>({
   email: undefined,
@@ -23,11 +31,43 @@ const validate = (state: any): FormError<string>[] => {
 }
 
 async function onSubmit(event: FormSubmitEvent<any>) {
-  console.log(event.data)
+  isLoading.value = true;
+  const { email, password } = event.data;
+
+  try {
+    ACCOUNT.createEmailPasswordSession(email, password);
+    const response = await ACCOUNT.get();
+
+    authStore.set({
+      id: response.$id,
+      name: response.name,
+      email: response.email,
+      status: response.status,
+    });
+
+    await router.push('/');
+
+    toast.add({
+      title: 'Login Successful',
+      description: 'You are now logged in',
+    });
+  } catch(e: any) {
+    error.value = e.message;
+    isLoading.value = false;
+  }
 }
 </script>
 
 <template>
+  <UAlert
+      v-if="error"
+      color="red"
+      title="Error"
+      :description="error"
+      variant="outline"
+      icon="i-lucide-terminal"
+  />
+
   <UForm
       :validate="validate"
       :state="state"
@@ -47,8 +87,9 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       <span class="text-blue-500 hover:underline" role="button" @click="toggleLogin" >Sign up</span>
     </div>
 
-    <UButton type="submit" color="blue" block size="lg">
-      Submit
+    <UButton type="submit" color="blue" block size="lg" :disabled="isLoading">
+      <Icon v-if="isLoading" name="svg-spinners:bars-rotate-fade" class="!size-5" />
+      <template v-else>Log in</template>
     </UButton>
   </UForm>
 </template>

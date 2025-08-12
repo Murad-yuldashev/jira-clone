@@ -1,10 +1,30 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'auth' });
+  import {ACCOUNT} from "~/libs/appwrite";
 
-const isLogin = ref(true);
-const toggleLogin = () => {
-  isLogin.value = !isLogin.value;
-};
+  definePageMeta({ layout: 'auth' });
+  useHead({ title: 'Auth | Jira software' });
+
+  const router = useRouter();
+
+  onMounted(() => {
+    ACCOUNT.get().then(() => router.push('/'));
+  })
+
+  const isLogin = ref(true);
+  const toggleLogin = () => {
+    isLogin.value = !isLogin.value;
+  };
+
+  let name = 'Stiven';
+
+  function sayHi() {
+    console.log(`Hello ${name}`);
+  }
+
+  setTimeout(function() {
+    let name = 'John';
+    sayHi()
+  }, 1000)
 </script>
 
 <template>

@@ -14,7 +14,7 @@ const initialState: {user: User} = {
     }
 };
 
-const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore('auth', {
     state: () => initialState,
 
     getters: {
